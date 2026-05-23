@@ -88,47 +88,41 @@
   }
   .overview-link:hover { color: var(--green); }
 
-  /* Overview modal */
-  .modal {
-    position: fixed;
-    inset: 0;
+  /* View routing */
+  .view.hidden { display: none; }
+
+  .page-header {
+    position: sticky;
+    top: 0;
     background: var(--bg);
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-    overflow-y: auto;
-  }
-  .modal.open { display: flex; }
-  .modal-inner {
-    max-width: 560px;
-    margin: 0 auto;
-    width: 100%;
-    padding: 12px 16px 40px;
-  }
-  .modal-header {
+    padding: 16px 0 12px;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 4px;
+    gap: 10px;
   }
-  .modal-title {
+  .back-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .page-header .title {
     font-size: 15px;
     font-weight: 700;
     color: var(--green);
-    text-transform: uppercase;
     letter-spacing: 0.5px;
-  }
-  .modal-close {
-    background: var(--card);
-    border: 1px solid var(--border);
-    width: 36px; height: 36px;
-    border-radius: 999px;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    padding: 0;
-    color: var(--ink);
+    text-transform: uppercase;
   }
 
   .overview-summary {
@@ -529,70 +523,70 @@
 </head>
 <body>
 
-<header class="app">
-  <div class="title-row">
-    <div class="title">Skills Drill Log</div>
-    <div class="title-meta">
-      <button class="overview-link" id="openOverview" aria-label="Open weekly overview">Overview</button>
-      <div class="progress" id="progress">Day 1 of 14</div>
-    </div>
-  </div>
-  <div class="day-nav">
-    <button class="arrow" id="prev" aria-label="Previous day">‹</button>
-    <div class="day-display" id="dayDisplay">
-      <div class="day-label" id="dayLabel">Today</div>
-      <div class="day-date" id="dayDate">—</div>
-    </div>
-    <button class="arrow" id="next" aria-label="Next day">›</button>
-  </div>
-  <button class="today-btn" id="todayBtn">Jump to today</button>
-</header>
-
-<main>
-  <section class="skills" id="skills"></section>
-
-  <div class="section-title">Reflection notes</div>
-  <section class="reflection">
-    <textarea id="reflection" placeholder="What did you notice today?"></textarea>
-    <div class="hint">Saved automatically.</div>
-  </section>
-
-  <div class="section-title">Reflect on</div>
-  <section class="prompts">
-    <details>
-      <summary>Which skills come most naturally?</summary>
-      <div class="prompt-body">
-        <textarea data-prompt="natural" placeholder="Which skills do you apply the most?"></textarea>
+<div class="view" id="mainView">
+  <header class="app">
+    <div class="title-row">
+      <div class="title">Skills Drill Log</div>
+      <div class="title-meta">
+        <button class="overview-link" id="openOverview" aria-label="Open weekly overview">Overview</button>
+        <div class="progress" id="progress">Day 1 of 14</div>
       </div>
-    </details>
-    <details>
-      <summary>Which skills are most difficult?</summary>
-      <div class="prompt-body">
-        <textarea data-prompt="difficult" placeholder="Which do you tend to avoid?"></textarea>
-      </div>
-    </details>
-    <details>
-      <summary>What impacts are you noticing?</summary>
-      <div class="prompt-body">
-        <textarea data-prompt="impacts" placeholder="On yourself, on your relationships…"></textarea>
-      </div>
-    </details>
-  </section>
-
-  <div class="footer">
-    Green Tara Leadership · Post-Circle 2-Week Challenge<br>
-    <button class="link" id="resetBtn">Reset challenge start date</button>
-  </div>
-</main>
-
-<div class="save-toast" id="toast">Saved</div>
-
-<div class="modal" id="overview" role="dialog" aria-modal="true" aria-label="Weekly overview">
-  <div class="modal-inner">
-    <div class="modal-header">
-      <div class="modal-title">Overview</div>
-      <button class="modal-close" id="closeOverview" aria-label="Close">×</button>
     </div>
+    <div class="day-nav">
+      <button class="arrow" id="prev" aria-label="Previous day">‹</button>
+      <div class="day-display" id="dayDisplay">
+        <div class="day-label" id="dayLabel">Today</div>
+        <div class="day-date" id="dayDate">—</div>
+      </div>
+      <button class="arrow" id="next" aria-label="Next day">›</button>
+    </div>
+    <button class="today-btn" id="todayBtn">Jump to today</button>
+  </header>
+
+  <main>
+    <section class="skills" id="skills"></section>
+
+    <div class="section-title">Reflection notes</div>
+    <section class="reflection">
+      <textarea id="reflection" placeholder="What did you notice today?"></textarea>
+      <div class="hint">Saved automatically.</div>
+    </section>
+
+    <div class="section-title">Reflect on</div>
+    <section class="prompts">
+      <details>
+        <summary>Which skills come most naturally?</summary>
+        <div class="prompt-body">
+          <textarea data-prompt="natural" placeholder="Which skills do you apply the most?"></textarea>
+        </div>
+      </details>
+      <details>
+        <summary>Which skills are most difficult?</summary>
+        <div class="prompt-body">
+          <textarea data-prompt="difficult" placeholder="Which do you tend to avoid?"></textarea>
+        </div>
+      </details>
+      <details>
+        <summary>What impacts are you noticing?</summary>
+        <div class="prompt-body">
+          <textarea data-prompt="impacts" placeholder="On yourself, on your relationships…"></textarea>
+        </div>
+      </details>
+    </section>
+
+    <div class="footer">
+      Green Tara Leadership · Post-Circle 2-Week Challenge<br>
+      <button class="link" id="resetBtn">Reset challenge start date</button>
+    </div>
+  </main>
+</div>
+
+<div class="view hidden" id="overviewView">
+  <header class="page-header">
+    <button class="back-btn" id="closeOverview" aria-label="Back">‹</button>
+    <div class="title">Overview</div>
+  </header>
+  <main>
     <div class="overview-summary" id="overviewSummary"></div>
     <div class="week-tabs" id="weekTabs">
       <button class="week-tab active" data-week="0">Week 1</button>
@@ -605,8 +599,10 @@
       <h4>Total reps per skill</h4>
       <div id="bars"></div>
     </div>
-  </div>
+  </main>
 </div>
+
+<div class="save-toast" id="toast">Saved</div>
 
 <script>
 (function () {
@@ -842,8 +838,9 @@
     renderReflection();
   }
 
-  // ---- overview modal ----
-  const overviewEl = document.getElementById("overview");
+  // ---- overview view ----
+  const mainViewEl = document.getElementById("mainView");
+  const overviewViewEl = document.getElementById("overviewView");
   const gridEl = document.getElementById("grid");
   const barsEl = document.getElementById("bars");
   const summaryEl = document.getElementById("overviewSummary");
@@ -928,15 +925,30 @@
     }
   }
 
+  function applyRoute() {
+    const isOverview = location.hash === "#overview";
+    mainViewEl.classList.toggle("hidden", isOverview);
+    overviewViewEl.classList.toggle("hidden", !isOverview);
+    if (isOverview) renderOverview();
+    window.scrollTo(0, 0);
+  }
+
   document.getElementById("openOverview").addEventListener("click", () => {
-    renderOverview();
-    overviewEl.classList.add("open");
-    document.body.style.overflow = "hidden";
+    if (location.hash !== "#overview") {
+      history.pushState({ view: "overview" }, "", "#overview");
+      applyRoute();
+    }
   });
   document.getElementById("closeOverview").addEventListener("click", () => {
-    overviewEl.classList.remove("open");
-    document.body.style.overflow = "";
+    if (history.state && history.state.view === "overview") {
+      history.back();
+    } else {
+      history.replaceState(null, "", location.pathname + location.search);
+      applyRoute();
+    }
   });
+  window.addEventListener("popstate", applyRoute);
+
   weekTabs.forEach(t => t.addEventListener("click", () => {
     activeWeek = Number(t.dataset.week);
     weekTabs.forEach(x => x.classList.toggle("active", x === t));
@@ -944,6 +956,7 @@
   }));
 
   renderAll();
+  applyRoute();
 })();
 </script>
 </body>
