@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6f4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Skills Drill Log</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌱%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --green: #1f6f4a;
+    --green-soft: #e8f3ee;
+    --green-mid: #b8dcc8;
+    --ink: #1b2a23;
+    --muted: #6b7a72;
+    --bg: #fafaf7;
+    --card: #ffffff;
+    --border: #e3e7e4;
+    --accent: #d97a3a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 0 16px env(safe-area-inset-bottom) 16px;
+    padding-top: env(safe-area-inset-top);
+  }
+
+  header.app {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 16px 0 12px;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .progress {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--green-soft);
+    color: var(--green);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .day-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .day-nav button.arrow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .day-nav button.arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .day-display {
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 10px;
+    user-select: none;
+  }
+  .day-display .day-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .day-display .day-date {
+    font-size: 19px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .day-display.is-today .day-label { color: var(--green); }
+
+  .today-btn {
+    display: block;
+    margin: 10px auto 0;
+    background: transparent;
+    border: none;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    visibility: hidden;
+  }
+  .today-btn.visible { visibility: visible; }
+
+  main {
+    padding: 16px 0 80px;
+  }
+
+  .skills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .skill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .skill.has-count {
+    background: var(--green-soft);
+    border-color: var(--green-mid);
+  }
+  .skill-name {
+    flex: 1;
+    font-size: 15px;
+    line-height: 1.35;
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .skill-count {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+  }
+  .skill.has-count .skill-count {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+  .skill-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-step {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+    font-weight: 600;
+  }
+  .btn-step.plus {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+  .btn-step:active { transform: scale(0.92); }
+  .btn-step.minus:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--green);
+    font-weight: 700;
+    margin: 28px 0 10px;
+  }
+
+  .reflection {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .reflection textarea {
+    width: 100%;
+    min-height: 96px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink);
+    background: transparent;
+  }
+  .reflection .hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .prompts {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px 14px;
+  }
+  .prompts details {
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+  }
+  .prompts details:last-child { border-bottom: none; }
+  .prompts summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    list-style: none;
+    color: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .prompts summary::-webkit-details-marker { display: none; }
+  .prompts summary::after {
+    content: "+";
+    color: var(--green);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .prompts details[open] summary::after { content: "−"; }
+  .prompts .prompt-body {
+    margin-top: 8px;
+  }
+  .prompts textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+  }
+  .prompts textarea:focus {
+    border-color: var(--green-mid);
+    background: white;
+  }
+
+  .footer {
+    margin-top: 30px;
+    padding: 14px 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer button.link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0 4px;
+  }
+
+  .save-toast {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+  .save-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 380px) {
+    body { padding: 0 12px; }
+    .skill { padding: 10px 12px; gap: 8px; }
+    .skill-name { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="title-row">
+    <div class="title">Skills Drill Log</div>
+    <div class="progress" id="progress">Day 1 of 14</div>
+  </div>
+  <div class="day-nav">
+    <button class="arrow" id="prev" aria-label="Previous day">‹</button>
+    <div class="day-display" id="dayDisplay">
+      <div class="day-label" id="dayLabel">Today</div>
+      <div class="day-date" id="dayDate">—</div>
+    </div>
+    <button class="arrow" id="next" aria-label="Next day">›</button>
+  </div>
+  <button class="today-btn" id="todayBtn">Jump to today</button>
+</header>
+
+<main>
+  <section class="skills" id="skills"></section>
+
+  <div class="section-title">Reflection notes</div>
+  <section class="reflection">
+    <textarea id="reflection" placeholder="What did you notice today?"></textarea>
+    <div class="hint">Saved automatically.</div>
+  </section>
+
+  <div class="section-title">Reflect on</div>
+  <section class="prompts">
+    <details>
+      <summary>Which skills come most naturally?</summary>
+      <div class="prompt-body">
+        <textarea data-prompt="natural" placeholder="Which skills do you apply the most?"></textarea>
+      </div>
+    </details>
+    <details>
+      <summary>Which skills are most difficult?</summary>
+      <div class="prompt-body">
+        <textarea data-prompt="difficult" placeholder="Which do you tend to avoid?"></textarea>
+      </div>
+    </details>
+    <details>
+      <summary>What impacts are you noticing?</summary>
+      <div class="prompt-body">
+        <textarea data-prompt="impacts" placeholder="On yourself, on your relationships…"></textarea>
+      </div>
+    </details>
+  </section>
+
+  <div class="footer">
+    Green Tara Leadership · Post-Circle 2-Week Challenge<br>
+    <button class="link" id="resetBtn">Reset challenge start date</button>
+  </div>
+</main>
+
+<div class="save-toast" id="toast">Saved</div>
+
+<script>
+(function () {
+  const SKILLS = [
+    "Did a Feelings Check-In to notice & name my feelings",
+    "Allowed myself to feel & release my emotions",
+    "Tuned into my heart & gut brain, aligning with my head brain",
+    "Took a 15% risk",
+    "Made a Bid / Turned Towards a Bid",
+    "Listened at Level 3",
+    "Self-Disclosed with someone at Level 4 or 5",
+    "Responded so others felt seen, heard & known (connection drivers)",
+    "Shared a pinch before it became a crunch",
+    "Shared feedback using the NET model",
+    "Noticed and named my inner critic",
+    "Offered myself self-compassion",
+    "Noticed and regulated my defense wall(s)",
+    "Offered genuine acknowledgement / appreciation to someone",
+    "Lived and led from my core self, my \"why would others follow me\" self"
+  ];
+
+  const STORAGE_KEY = "skillsDrillLog.v1";
+  const PROMPTS_KEY = "skillsDrillLog.prompts.v1";
+  const START_KEY = "skillsDrillLog.startDate.v1";
+  const CHALLENGE_DAYS = 14;
+
+  // ---- helpers ----
+  function todayISO() {
+    const d = new Date();
+    return localISO(d);
+  }
+  function localISO(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function parseISO(s) {
+    const [y, m, d] = s.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+  function addDays(iso, n) {
+    const d = parseISO(iso);
+    d.setDate(d.getDate() + n);
+    return localISO(d);
+  }
+  function diffDays(aISO, bISO) {
+    const a = parseISO(aISO), b = parseISO(bISO);
+    return Math.round((b - a) / 86400000);
+  }
+  function fmtDate(iso) {
+    const d = parseISO(iso);
+    const weekday = d.toLocaleDateString(undefined, { weekday: "short" });
+    const month = d.toLocaleDateString(undefined, { month: "short" });
+    return `${weekday}, ${month} ${d.getDate()}`;
+  }
+  function loadAll() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { return {}; }
+  }
+  function saveAll(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+  function getDay(iso) {
+    const all = loadAll();
+    return all[iso] || { counts: new Array(SKILLS.length).fill(0), reflection: "" };
+  }
+  function setDay(iso, day) {
+    const all = loadAll();
+    const empty = day.counts.every(c => !c) && !day.reflection;
+    if (empty) delete all[iso]; else all[iso] = day;
+    saveAll(all);
+  }
+
+  // ---- state ----
+  let currentDate = todayISO();
+  let startDate = localStorage.getItem(START_KEY);
+  if (!startDate) {
+    startDate = todayISO();
+    localStorage.setItem(START_KEY, startDate);
+  }
+
+  // ---- render ----
+  const skillsEl = document.getElementById("skills");
+  const dayDate = document.getElementById("dayDate");
+  const dayLabel = document.getElementById("dayLabel");
+  const dayDisplay = document.getElementById("dayDisplay");
+  const progressEl = document.getElementById("progress");
+  const reflectionEl = document.getElementById("reflection");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  const todayBtn = document.getElementById("todayBtn");
+  const toast = document.getElementById("toast");
+
+  function renderSkills() {
+    const day = getDay(currentDate);
+    skillsEl.innerHTML = "";
+    SKILLS.forEach((name, i) => {
+      const row = document.createElement("div");
+      row.className = "skill" + (day.counts[i] > 0 ? " has-count" : "");
+
+      const label = document.createElement("div");
+      label.className = "skill-name";
+      label.textContent = name;
+      label.addEventListener("click", () => change(i, +1));
+
+      const controls = document.createElement("div");
+      controls.className = "skill-controls";
+
+      const minus = document.createElement("button");
+      minus.className = "btn-step minus";
+      minus.textContent = "−";
+      minus.setAttribute("aria-label", "Decrease");
+      minus.disabled = day.counts[i] === 0;
+      minus.addEventListener("click", (e) => { e.stopPropagation(); change(i, -1); });
+
+      const count = document.createElement("div");
+      count.className = "skill-count";
+      count.textContent = day.counts[i];
+
+      const plus = document.createElement("button");
+      plus.className = "btn-step plus";
+      plus.textContent = "+";
+      plus.setAttribute("aria-label", "Increase");
+      plus.addEventListener("click", (e) => { e.stopPropagation(); change(i, +1); });
+
+      controls.appendChild(minus);
+      controls.appendChild(count);
+      controls.appendChild(plus);
+
+      row.appendChild(label);
+      row.appendChild(controls);
+      skillsEl.appendChild(row);
+    });
+  }
+
+  function renderHeader() {
+    dayDate.textContent = fmtDate(currentDate);
+    const today = todayISO();
+    const isToday = currentDate === today;
+    dayDisplay.classList.toggle("is-today", isToday);
+    if (isToday) dayLabel.textContent = "Today";
+    else if (currentDate === addDays(today, -1)) dayLabel.textContent = "Yesterday";
+    else if (currentDate === addDays(today, 1)) dayLabel.textContent = "Tomorrow";
+    else dayLabel.textContent = parseISO(currentDate).toLocaleDateString(undefined, { weekday: "long" });
+    todayBtn.classList.toggle("visible", !isToday);
+
+    const dayNum = diffDays(startDate, currentDate) + 1;
+    if (dayNum >= 1 && dayNum <= CHALLENGE_DAYS) {
+      progressEl.textContent = `Day ${dayNum} of ${CHALLENGE_DAYS}`;
+      progressEl.style.display = "";
+    } else if (dayNum > CHALLENGE_DAYS) {
+      progressEl.textContent = `Day ${dayNum} · post-challenge`;
+      progressEl.style.display = "";
+    } else {
+      progressEl.style.display = "none";
+    }
+
+    nextBtn.disabled = currentDate >= today;
+  }
+
+  function renderReflection() {
+    const day = getDay(currentDate);
+    reflectionEl.value = day.reflection || "";
+  }
+
+  function change(idx, delta) {
+    const day = getDay(currentDate);
+    day.counts[idx] = Math.max(0, day.counts[idx] + delta);
+    setDay(currentDate, day);
+    renderSkills();
+    flashSaved();
+  }
+
+  function flashSaved() {
+    toast.classList.add("show");
+    clearTimeout(flashSaved._t);
+    flashSaved._t = setTimeout(() => toast.classList.remove("show"), 900);
+  }
+
+  // ---- events ----
+  prevBtn.addEventListener("click", () => {
+    currentDate = addDays(currentDate, -1);
+    renderAll();
+  });
+  nextBtn.addEventListener("click", () => {
+    if (nextBtn.disabled) return;
+    currentDate = addDays(currentDate, 1);
+    renderAll();
+  });
+  todayBtn.addEventListener("click", () => {
+    currentDate = todayISO();
+    renderAll();
+  });
+  dayDisplay.addEventListener("click", () => {
+    currentDate = todayISO();
+    renderAll();
+  });
+
+  reflectionEl.addEventListener("input", () => {
+    const day = getDay(currentDate);
+    day.reflection = reflectionEl.value;
+    setDay(currentDate, day);
+  });
+  reflectionEl.addEventListener("blur", flashSaved);
+
+  // prompts (global, not per-day)
+  const promptStore = (() => {
+    try { return JSON.parse(localStorage.getItem(PROMPTS_KEY) || "{}"); }
+    catch { return {}; }
+  })();
+  document.querySelectorAll("[data-prompt]").forEach(ta => {
+    const key = ta.dataset.prompt;
+    ta.value = promptStore[key] || "";
+    ta.addEventListener("input", () => {
+      promptStore[key] = ta.value;
+      localStorage.setItem(PROMPTS_KEY, JSON.stringify(promptStore));
+    });
+    ta.addEventListener("blur", flashSaved);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    if (confirm("Reset the challenge start date to today? Your skill entries will be kept.")) {
+      startDate = todayISO();
+      localStorage.setItem(START_KEY, startDate);
+      renderHeader();
+    }
+  });
+
+  function renderAll() {
+    renderHeader();
+    renderSkills();
+    renderReflection();
+  }
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
